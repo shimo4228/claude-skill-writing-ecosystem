@@ -1,0 +1,36 @@
+# claude-skill-writing-ecosystem
+
+> A Claude Code skill (documentation-only, MIT, v0.1.0) that orchestrates the **human-facing writing & review ecosystem** — articles, essays, blog posts, newsletter issues. Holds the canonical AI-slop banned list (Japanese + English), Voice rules (だ/である × 発見調), title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. Audience-paired with `llms-txt-writer` (AI-facing documents).
+
+## Core documentation
+
+- [SKILL.md](skills/writing-ecosystem/SKILL.md): full skill specification — ecosystem map, AI-slop banned lists (JA + EN), Voice & Tone rules, three-stage question architecture, title conventions, project-overlay extension slot
+- [README.md](README.md): human-facing narrative (install, ecosystem map, audience boundary)
+- [CHANGELOG.md](CHANGELOG.md): release notes (v0.1.0 initial release)
+
+## The role-separation matrix
+
+The skill enforces a 2D role separation across the writing ecosystem:
+
+|        | Write | Review: Quality | Review: Logic | Review: Facts |
+|---|---|---|---|---|
+| **Component** | `article-writing` skill | `editor` agent | `essay-reviewer` agent | `fact-checker` agent |
+| **Trigger** | drafting | tech-article review | idea-article review | before publication |
+
+The shared concerns (AI slop, Voice, title conventions) are owned by this skill (`writing-ecosystem`) and auto-loaded across write + review phases.
+
+## Audience boundary
+
+| Audience | Skill |
+|---|---|
+| Humans (articles, essays, blog posts) | `claude-skill-writing-ecosystem` (this one) |
+| AI search engines and agents (`llms.txt`, FAQ) | `claude-skill-llms-txt-writer` |
+
+The two skills do not overlap. Mixing audiences in one document makes both worse.
+
+## Sibling skills
+
+- [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer): AI-facing documents (the audience-paired skill)
+- [claude-skill-jsonld-knowledge-graph](https://github.com/shimo4228/claude-skill-jsonld-knowledge-graph): JSON-LD knowledge graph design for stable concept-level structure
+- [claude-skill-context-sync](https://github.com/shimo4228/claude-skill-context-sync): project documentation audit
+- [claude-skill-search-first](https://github.com/shimo4228/claude-skill-search-first): research-before-coding workflow
