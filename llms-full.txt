@@ -52,7 +52,7 @@ The skill exposes a **project overlay slot**: platform-specific rules live in `<
 
 ## How does this skill interact with article-writing?
 
-`article-writing` (a general-purpose drafting skill) has its own Banned Patterns list. This skill's AI-slop banned list is a **superset** that subsumes article-writing's Banned Patterns and adds Japanese-specific entries plus the discovery-tone Voice convention. The two coexist: `article-writing` provides the general framework and discipline, this skill provides the broader convention layer that applies on top.
+`article-writing` (a general-purpose drafting skill) is **authored by Affaan Mustafa as part of [Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code), MIT-licensed** — it is not authored by this repo. It has its own Banned Patterns list. This skill's AI-slop banned list is a **superset** that subsumes article-writing's Banned Patterns and adds Japanese-specific entries plus the discovery-tone Voice convention. The two coexist: ECC's `article-writing` provides the general framework and discipline, this skill provides the broader convention layer that applies on top.
 
 ## How does this relate to the author's research?
 

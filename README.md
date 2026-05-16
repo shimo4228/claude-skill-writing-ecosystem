@@ -55,11 +55,17 @@ The two skills do not overlap. Mixing audiences in one document makes both worse
 
 ## Related
 
-- [`article-writing`](https://github.com/shimo4228/agent-knowledge-cycle) — general writing framework (its Banned Patterns are subsumed by this skill's superset)
+- [`article-writing`](https://github.com/affaan-m/everything-claude-code/tree/main/skills/article-writing) — general writing framework from **Everything Claude Code (ECC)** by Affaan Mustafa (MIT). Its Banned Patterns are subsumed by this skill's superset
 - [`editor`](https://github.com/shimo4228/claude-harness) agent — tech-article review
 - [`essay-reviewer`](https://github.com/shimo4228/claude-harness) agent — idea-article review
 - [`fact-checker`](https://github.com/shimo4228/claude-harness) agent — web-based fact verification
 - [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer) — AI-facing documents (`llms.txt` etc.)
+
+## Acknowledgments
+
+The `article-writing` skill referenced in the ecosystem map is **not authored by this repo**. It comes from [Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code) by [Affaan Mustafa](https://github.com/affaan-m), MIT-licensed. This skill (`writing-ecosystem`) layers a superset of conventions on top of it — AI-slop banned list, Voice rules, title rules, role boundaries — but the general drafting framework itself is ECC's contribution.
+
+Thank you to ECC and to Affaan Mustafa for the foundational `article-writing` skill that this ecosystem depends on.
 
 ## License
 
