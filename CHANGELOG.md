@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] — 2026-06-08
+
+### Added — bundled agents + one-command install
+
+- **Bundled the three review agents** (`editor`, `essay-reviewer`,
+  `fact-checker`) into `agents/`. Previously the README linked them to the
+  `claude-harness` monorepo, so installers had to discover and copy them
+  separately. The agents read their canonical rules (AI-slop list, Voice, title
+  conventions) from the `writing-ecosystem` skill, so skill and agents must be
+  installed together — now they ship as one unit.
+- **`install.sh`** — idempotent one-command bundler that copies `skills/*` →
+  `~/.claude/skills/` and `agents/*.md` → `~/.claude/agents/`, backs up replaced
+  files to `*.bak-<ts>` (`--force` / `--dry-run`). Byte-identical to the script
+  used across the ecosystem repos.
+- **`.gitignore`** for `.venv` / caches / `*.bak-*`.
+- `compatibility` frontmatter field (per the Agent Skills spec) marking this as a
+  Claude Code bundle (subagents are Claude-Code-specific).
+
+### Changed
+
+- README install section rewritten with Option A (`./install.sh`) / Option B
+  (manual) / SkillsMP caveat (SkillsMP installs `skills/` only, not `agents/`).
+- Agent links re-pointed from `claude-harness` to the in-repo `agents/`
+  (claude-harness remains the upstream origin).
+
+### Note
+
+- The skill body (`SKILL.md`) tracks v0.1.0 content; later global additions
+  (translation / publishing / citation workflows) are not yet synced here.
+
 ## [0.1.0] — 2026-05-16
 
 Initial public release.

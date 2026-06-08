@@ -8,20 +8,36 @@ Holds the canonical AI-slop banned list (Japanese + English), Voice rules (だ/�
 
 ## Install
 
-### Claude Code
+This repo bundles **both the skill and the agents it orchestrates** (`editor` / `essay-reviewer` / `fact-checker`). The agents read their canonical rules (AI-slop list, Voice, title conventions) from the `writing-ecosystem` skill, so the skill and its agents must be installed together.
+
+### Option A — one command (recommended)
 
 ```bash
-# Copy skill into your global skills directory
-cp -r skills/writing-ecosystem ~/.claude/skills/writing-ecosystem
+git clone https://github.com/shimo4228/claude-skill-writing-ecosystem
+cd claude-skill-writing-ecosystem
+./install.sh
 ```
 
-No runtime dependencies. The skill is documentation-only.
+Copies `skills/*` into `~/.claude/skills/` and `agents/*.md` into `~/.claude/agents/`. Existing files are backed up to `*.bak-<timestamp>` first (use `--force` to skip backups, `--dry-run` to preview).
+
+### Option B — manual
+
+```bash
+cp -r skills/writing-ecosystem ~/.claude/skills/writing-ecosystem
+cp agents/*.md ~/.claude/agents/
+```
+
+No runtime dependencies; the skill is documentation-only.
+
+> The `article-writing` drafting skill referenced in the ecosystem map is **not bundled** — it comes from [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) (MIT). Install it separately for the drafting half; the review half (this skill + its agents) works without it.
 
 ### SkillsMP
 
 ```bash
 /skills add shimo4228/claude-skill-writing-ecosystem
 ```
+
+> **Caveat:** SkillsMP installs `skills/` only — not `agents/`. After `/skills add`, copy the agents: `cp agents/*.md ~/.claude/agents/` (or use Option A).
 
 ## Ecosystem map
 
@@ -55,11 +71,13 @@ The two skills do not overlap. Mixing audiences in one document makes both worse
 
 ## Related
 
-- [`article-writing`](https://github.com/affaan-m/everything-claude-code/tree/main/skills/article-writing) — general writing framework from **Everything Claude Code (ECC)** by Affaan Mustafa (MIT). Its Banned Patterns are subsumed by this skill's superset
-- [`editor`](https://github.com/shimo4228/claude-harness) agent — tech-article review
-- [`essay-reviewer`](https://github.com/shimo4228/claude-harness) agent — idea-article review
-- [`fact-checker`](https://github.com/shimo4228/claude-harness) agent — web-based fact verification
+- [`editor`](agents/editor.md) agent — tech-article review (**bundled** in this repo's `agents/`)
+- [`essay-reviewer`](agents/essay-reviewer.md) agent — idea-article review (**bundled**)
+- [`fact-checker`](agents/fact-checker.md) agent — web-based fact verification (**bundled**)
+- [`article-writing`](https://github.com/affaan-m/everything-claude-code/tree/main/skills/article-writing) — general writing framework from **Everything Claude Code (ECC)** by Affaan Mustafa (MIT). Not bundled; its Banned Patterns are subsumed by this skill's superset
 - [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer) — AI-facing documents (`llms.txt` etc.)
+
+The three review agents are also maintained in [claude-harness](https://github.com/shimo4228/claude-harness) (upstream origin); this repo vendors them so the ecosystem installs as one unit.
 
 ## Acknowledgments
 

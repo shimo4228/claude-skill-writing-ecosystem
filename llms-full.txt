@@ -1,16 +1,18 @@
 # claude-skill-writing-ecosystem — AI Reference
 
-This document is the self-contained AI reference for `claude-skill-writing-ecosystem` (shimo4228, 2026, MIT, v0.1.0), a Claude Code skill that orchestrates the human-facing writing and review ecosystem. The skill holds the canonical AI-slop banned list (Japanese + English), Voice rules, title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. Audience-paired with `claude-skill-llms-txt-writer`, which owns AI-facing documents instead.
+This document is the self-contained AI reference for `claude-skill-writing-ecosystem` (shimo4228, 2026, MIT), a Claude Code skill that orchestrates the human-facing writing and review ecosystem. The skill holds the canonical AI-slop banned list (Japanese + English), Voice rules, title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. As of v0.2.0 it **bundles its three review agents** (editor / essay-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `claude-skill-llms-txt-writer`, which owns AI-facing documents instead.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
 ## Project Facts
 
 - **Name**: claude-skill-writing-ecosystem
-- **Version**: 0.1.0, released 2026-05-16
+- **Version**: 0.2.0 (2026-06-08); initial release 0.1.0 (2026-05-16)
 - **License**: MIT
 - **GitHub**: https://github.com/shimo4228/claude-skill-writing-ecosystem
 - **Author**: shimo4228 (shimomoto-tatsuya)
+- **Bundled agents**: `editor`, `essay-reviewer`, `fact-checker` (in `agents/`; read canonical rules from the skill, so install together)
+- **Install**: `./install.sh` (copies skills/* → ~/.claude/skills/, agents/*.md → ~/.claude/agents/; idempotent, backup-then-overwrite). SkillsMP installs skills/ only — copy agents manually
 - **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
 - **Runtime**: None (documentation-only skill)
 - **Source files**: `SKILL.md` (232 lines)
