@@ -64,7 +64,7 @@ Holds the canonical AI-slop banned list (Japanese + English), Voice rules
 - **Three-stage question architecture** — title + thesis-shape + mid-article
   rhetorical questions so the conclusion is reached with the reader
 - **Audience boundary** — strictly human-primary; AI-facing documents go to
-  `claude-skill-llms-txt-writer`
+  `llms-txt-writer`
 
 ### Requirements
 
@@ -72,6 +72,6 @@ Holds the canonical AI-slop banned list (Japanese + English), Voice rules
 
 ### Companion skills
 
-- `claude-skill-llms-txt-writer` — AI-facing documents
+- `llms-txt-writer` — AI-facing documents
 - `article-writing` — general drafting framework (Banned Patterns subsumed)
 - `editor` / `essay-reviewer` / `fact-checker` agents (in `claude-harness`)

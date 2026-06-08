@@ -1,6 +1,6 @@
 # claude-skill-writing-ecosystem — AI Reference
 
-This document is the self-contained AI reference for `claude-skill-writing-ecosystem` (shimo4228, 2026, MIT), a Claude Code skill that orchestrates the human-facing writing and review ecosystem. The skill holds the canonical AI-slop banned list (Japanese + English), Voice rules, title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. As of v0.2.0 it **bundles its three review agents** (editor / essay-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `claude-skill-llms-txt-writer`, which owns AI-facing documents instead.
+This document is the self-contained AI reference for `claude-skill-writing-ecosystem` (shimo4228, 2026, MIT), a Claude Code skill that orchestrates the human-facing writing and review ecosystem. The skill holds the canonical AI-slop banned list (Japanese + English), Voice rules, title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. As of v0.2.0 it **bundles its three review agents** (editor / essay-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `llms-txt-writer`, which owns AI-facing documents instead.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
@@ -17,7 +17,7 @@ This document is the self-contained AI reference for `claude-skill-writing-ecosy
 - **Runtime**: None (documentation-only skill)
 - **Source files**: `SKILL.md` (232 lines)
 - **Skill install path**: `~/.claude/skills/writing-ecosystem/`
-- **Siblings**: `claude-skill-llms-txt-writer` (audience-paired), `claude-skill-jsonld-knowledge-graph`, `claude-skill-context-sync`, `claude-skill-search-first`
+- **Siblings**: `llms-txt-writer` (audience-paired), `jsonld-knowledge-graph`, `context-sync`, `search-first`
 - **Marketplace**: SkillsMP, `/skills add shimo4228/claude-skill-writing-ecosystem`
 
 ## What is claude-skill-writing-ecosystem?
@@ -26,7 +26,7 @@ claude-skill-writing-ecosystem is defined as a Claude Code skill that orchestrat
 
 ## What audience does this skill cover?
 
-This skill covers **human-primary content only** — articles, essays, blog posts, newsletter issues, and similar long-form material whose first readers are human. For AI-primary documents such as `llms.txt`, `llms-full.txt`, FAQ pages, and glossaries, the audience-paired sibling skill is `claude-skill-llms-txt-writer`. The two skills enforce strict audience separation because optimization criteria diverge: human-primary content rewards narrative flow and unique observation, AI-primary content rewards entity density and definitional explicitness.
+This skill covers **human-primary content only** — articles, essays, blog posts, newsletter issues, and similar long-form material whose first readers are human. For AI-primary documents such as `llms.txt`, `llms-full.txt`, FAQ pages, and glossaries, the audience-paired sibling skill is `llms-txt-writer`. The two skills enforce strict audience separation because optimization criteria diverge: human-primary content rewards narrative flow and unique observation, AI-primary content rewards entity density and definitional explicitness.
 
 ## What is the AI-slop banned list?
 

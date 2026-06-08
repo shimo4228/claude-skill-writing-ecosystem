@@ -14,7 +14,7 @@ origin: shimo4228
 
 ## Scope
 
-**人間 primary のコンテンツのみ扱う**。AI-facing ドキュメント（`llms.txt` / `llms-full.txt` / FAQ ページ等）には `llms-txt-writer` skill を使う。audience 判定と役割分担は [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer) の `SKILL.md` 内 "Audience Separation: Human vs AI" セクションを参照。
+**人間 primary のコンテンツのみ扱う**。AI-facing ドキュメント（`llms.txt` / `llms-full.txt` / FAQ ページ等）には `llms-txt-writer` skill を使う。audience 判定と役割分担は [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer) の `SKILL.md` 内 "Audience Separation: Human vs AI" セクションを参照。
 
 ---
 

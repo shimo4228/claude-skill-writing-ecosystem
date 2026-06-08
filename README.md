@@ -4,7 +4,7 @@ A [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills) that o
 
 Holds the canonical AI-slop banned list (Japanese + English), Voice rules (だ/である × 発見調 / declarative × discovery tone), title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`.
 
-> For AI-facing documents (`llms.txt` / `llms-full.txt` / FAQ pages / glossaries), use [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer) instead. Audience separation is enforced by these two skills owning distinct concerns.
+> For AI-facing documents (`llms.txt` / `llms-full.txt` / FAQ pages / glossaries), use [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer) instead. Audience separation is enforced by these two skills owning distinct concerns.
 
 ## Install
 
@@ -65,7 +65,7 @@ The skill enforces a **2D role separation** — `Write / Review` × `Quality / L
 | Audience | Skill |
 |---|---|
 | Humans (articles, essays, blog posts, newsletters) | `writing-ecosystem` (this skill) |
-| AI search engines / LLM agents (`llms.txt`, `llms-full.txt`, FAQ, glossary) | [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer) |
+| AI search engines / LLM agents (`llms.txt`, `llms-full.txt`, FAQ, glossary) | [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer) |
 
 The two skills do not overlap. Mixing audiences in one document makes both worse.
 
@@ -75,7 +75,7 @@ The two skills do not overlap. Mixing audiences in one document makes both worse
 - [`essay-reviewer`](agents/essay-reviewer.md) agent — idea-article review (**bundled**)
 - [`fact-checker`](agents/fact-checker.md) agent — web-based fact verification (**bundled**)
 - [`article-writing`](https://github.com/affaan-m/everything-claude-code/tree/main/skills/article-writing) — general writing framework from **Everything Claude Code (ECC)** by Affaan Mustafa (MIT). Not bundled; its Banned Patterns are subsumed by this skill's superset
-- [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer) — AI-facing documents (`llms.txt` etc.)
+- [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer) — AI-facing documents (`llms.txt` etc.)
 
 The three review agents are also maintained in [claude-harness](https://github.com/shimo4228/claude-harness) (upstream origin); this repo vendors them so the ecosystem installs as one unit.
 
