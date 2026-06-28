@@ -1,6 +1,6 @@
 # claude-skill-writing-ecosystem
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/claude-skill-writing-ecosystem) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/claude-skill-writing-ecosystem)](https://gitmcp.io/shimo4228/claude-skill-writing-ecosystem)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/claude-skill-writing-ecosystem) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/claude-skill-writing-ecosystem)](https://gitmcp.io/shimo4228/claude-skill-writing-ecosystem) [![View Code Wiki](https://assets.codewiki.google/readme-badge/static.svg)](https://codewiki.google/github.com/shimo4228/claude-skill-writing-ecosystem)
 
 A [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills) that orchestrates the **human-facing writing & review ecosystem** — articles, essays, blog posts, newsletter issues, and other long-form human-primary content.
 
