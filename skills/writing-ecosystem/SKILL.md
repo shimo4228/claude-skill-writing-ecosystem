@@ -14,7 +14,7 @@ origin: shimo4228
 
 ## Scope
 
-**人間 primary のコンテンツのみ扱う**。AI-facing ドキュメント（`llms.txt` / `llms-full.txt` / FAQ ページ等）には `llms-txt-writer` skill を使う。audience 判定と役割分担は [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer) の `SKILL.md` 内 "Audience Separation: Human vs AI" セクションを参照。
+**人間 primary のコンテンツのみ扱う**。AI-facing ドキュメント（`llms.txt` / `llms-full.txt` / FAQ ページ等）には `llms-txt-writer` skill を使う。audience 判定と役割分担は [Audience Separation: Human vs AI](../llms-txt-writer/SKILL.md#audience-separation-human-vs-ai) を参照。
 
 ---
 
@@ -25,9 +25,11 @@ origin: shimo4228
 | フェーズ | コンポーネント | 軸 | トリガー |
 |---------|---------------|-----|----------|
 | **Write** | `article-writing` skill | 汎用書き方 | 執筆タスク全般（初稿・構造設計） |
+| **Translate** | `ja-to-en-translation` skill | 日本語→英語の voice 保持翻訳 | JA→EN 翻訳タスク時 |
 | **Review: 品質** | `editor` agent | tech 記事の構造・コード・AI slop・用語 | tech 記事レビュー時 |
 | **Review: 論理** | `essay-reviewer` agent | idea 記事の論理構成・過積載・トーン | idea 記事レビュー時 |
 | **Review: 事実** | `fact-checker` agent | 事実主張の Web 検証 | 公開前検証時 |
+| **Publish** | `substack-publishing` skill | Substack 公開 + LLM corpus ミラー | human essay を Substack に出すとき |
 | **Shared** | `writing-ecosystem` skill | AI slop / Voice / エコシステム map | 執筆 + レビュー時（自動発火） |
 | **Overlay** | `<project>/.claude/rules/*.md` | プラットフォーム固有ルール | プロジェクト内作業時のみ |
 
@@ -58,12 +60,55 @@ origin: shimo4228
    ▼
 ┌─ 事実チェック（任意、tech/idea 問わず） ───┐
 │ fact-checker agent                         │
+└──┬─────────────────────────────────────────┘
+   │
+   ▼
+┌─ 出典編入（fact-check 後） ────────────────┐
+│ Citation & Sources Workflow（下記セクション）│
 └────────────────────────────────────────────┘
 ```
 
 ### エージェント並列実行の原則
 
 `editor` と `essay-reviewer` は **観点が異なる** ので、mixed 記事では両方並列実行したほうがカバレッジが高い。`fact-checker` は常に並列で回せる。
+
+### 翻訳タスクの場合
+
+日本語記事を英語にするときは、初稿の `article-writing` ではなく `ja-to-en-translation` skill を入口にする。翻訳 → EN 出力を `essay-reviewer`（idea）/ `editor`（tech）でレビュー、という流れ。英語側の AI slop / Voice 規約は本 skill を正本として参照する（翻訳 skill は再掲せず defer する）。
+
+### Substack へ公開する場合
+
+レビュー（+ 必要なら翻訳・出典編入）が済んだ human essay を Substack に出すときは `substack-publishing` skill を使う。Substack は raw Markdown 非対応なので MD→HTML 変換して貼る、Title / Subtitle / body をフィールド分けする、タグ spine とカバー画像、公開後に LLM corpus（content repo の `substack/`）へミラーする、までを扱う。
+
+---
+
+## Citation & Sources Workflow（出典をエッセイに入れる）
+
+fact-check で確定した一次資料を、**本文の出典セクションに編入する**のがエッセイ公開前の標準ステップ。現状この step が抜けやすいので明文化する。
+
+### 所有と分離
+
+- **embedding はこのワークフローが所有する**。`fact-checker` は report-only（記事を編集しない / author-reviewer 分離）のままで、検証済みソースを「出典セクションに落とせる形」で返すだけ。本文への編入は著者 / orchestrator が行う。
+- `fact-checker` の出力（verdict が ✅ / ⚠️ のソース URL 群）が canonical input。
+
+### 手順
+
+1. fact-check 通過後、verdict が ✅ ACCURATE / ⚠️ PARTIALLY のソースを集める（❌ / ❓ のソースは載せない）。
+2. **テーマ別にグループ化**し、重複 URL を排除、**一次資料を優先**（official / 原典 / academic > 二次報道）。
+3. 本文末に出典セクションを作る。
+4. 本文で著者自身の既発表（DOI / repo / 論文）に言及していれば、それも出典に含める。
+
+### 媒体別ポリシー
+
+| 媒体 | 出典の置き方 |
+|---|---|
+| idea / opinion essay | 末尾に `## 出典・参考文献`。テーマ別グループ、一次資料優先 |
+| tech 記事 / tutorial | 本文中の inline link を基本に、必要なら末尾に補助的な References |
+| 学術 paper | 本ワークフローではなく `citation-formatter` agent（in-text ↔ reference の 1:1・format・DOI 検証） |
+
+### 翻訳記事の出典
+
+`ja-to-en-translation` で訳した記事は、原文の出典セクションを引き継ぐ。**URL / DOI は保持**し、description のみ英訳する。
 
 ---
 
@@ -200,6 +245,23 @@ type（tech / idea）にかかわらず、**だ/である調 × 発見調** で�
 
 ---
 
+## Article Topic Selection (3-axis)
+
+執筆を始める前のネタ選定にも 3 軸を当てる。「書きたいこと」だけで選ばない。
+
+| 軸 | 問い |
+|----|------|
+| **検索需要** | そのキーワードを検索する人がいるか |
+| **競合の少なさ** | 既存記事が少ない or 差別化できる角度があるか |
+| **一次情報** | 自分の体験・失敗・数字を持っているか |
+
+**優先度**: 検索需要高 + 競合少 + 一次情報あり → 最優先（ブルーオーシャン）。
+
+**Anti-Patterns**:
+- 「書きたいこと」だけで選んで検索需要を確認しない
+- 競合が多いからと諦める（一次情報で差別化可能）
+- 3 軸全部が揃うのを待つ（「体験を作ってから書く」で無期限延期になる）
+
 ## Section Length Guidelines
 
 - 1 つのセクションが記事全体の 30% を超える場合は、分割を検討する（ハードルールではなく目安）
@@ -226,12 +288,10 @@ overlay 側のファイル冒頭に「本 skill を base とする」旨を明�
 
 ## Related
 
-- `article-writing` skill — 執筆時の汎用フレームワーク（本 skill の Banned Patterns を包含）。**[Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code) の skill (Affaan Mustafa 作、MIT)** であり、本 repo の成果物ではない
+- `article-writing` skill — 執筆時の汎用フレームワーク（本 skill の Banned Patterns を包含）
+- `ja-to-en-translation` skill — 日本語→英語の voice 保持翻訳（英語 AI-slop / Voice / Title / 出典編入は本 skill に defer）
+- `substack-publishing` skill — Substack 公開 + LLM corpus ミラーのワークフロー（Voice / AI-slop / Title / 出典は本 skill に defer）
 - `editor` agent — tech 記事レビュー（構造・コード・AI slop・用語）
 - `essay-reviewer` agent — idea 記事レビュー（論理構成・過積載・トーン）
 - `fact-checker` agent — 事実主張の Web 検証
 - `llms-txt-writer` skill — **AI 向けドキュメント（llms.txt / llms-full.txt / FAQ 等）専用**。audience が AI なら本 skill ではなくあちらを使う
-
-## Acknowledgments
-
-本 skill が依存する `article-writing` skill は [Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code) by [Affaan Mustafa](https://github.com/affaan-m) (MIT) の成果物。本 skill (`writing-ecosystem`) はその上に AI slop 禁止リスト・Voice 規約・タイトル規約・役割境界という superset を被せているが、汎用書き方フレームワーク自体は ECC の貢献である。Thank you, ECC and Affaan Mustafa.
