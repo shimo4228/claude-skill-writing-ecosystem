@@ -1,7 +1,7 @@
 ---
 name: writing-ecosystem
 description: 人間向け記事・エッセイ・ブログポスト・ニュースレターの唯一の執筆 orchestrator。project の publication channel contract を読み、中心命題 1 つの editorial brief、因果線、証拠の選択と除外、構成、執筆、review panel、著者の内容 GO、title-reviewer、quality-gate までを統括する。Use when — 「この記事を書いて」「このテーマでエッセイにして」「原稿の論点を一つに絞って構造改稿して」のような新規執筆・全体改稿・全文の別 channel 展開。NOT for — 一文や段落だけの翻訳（→ prose-translation）、title だけ（→ headline-craft / title-reviewer）、SNS 下書き（→ x-draft）、公開 thread 返信（→ public-comment）、AI 向け docs、README、paper、媒体固有の公開操作。
-compatibility: Designed for Claude Code (or similar agent products). Orchestrates globally installed agents under ~/.claude/agents/.
+compatibility: Designed for Claude Code (or similar agent products). Orchestrates the review agents under <project>/.claude/agents/.
 user-invocable: true
 origin: shimo4228
 ---
@@ -15,7 +15,7 @@ origin: shimo4228
 
 ## Scope
 
-**人間 primary のコンテンツのみ扱う**。AI-facing ドキュメント（`llms.txt` / `llms-full.txt` / FAQ ページ等）には `llms-txt-writer` skill を使う。audience 判定と役割分担は [Audience Separation: Human vs AI](../llms-txt-writer/SKILL.md#audience-separation-human-vs-ai) を参照。
+**人間 primary のコンテンツのみ扱う**。AI-facing ドキュメント（`llms.txt` / `llms-full.txt` / FAQ ページ等）には `llms-txt-writer` skill を使う。audience 判定と役割分担は [Audience Separation: Human vs AI](~/.claude/skills/llms-txt-writer/SKILL.md#audience-separation-human-vs-ai) を参照。
 
 本 skill は媒体名・語尾・frontmatter・文字数・reviewer 構成・公開 command を持たない。記事全体を
 扱う task では最初に
@@ -71,9 +71,10 @@ local contract から出力 channel と読者を決める。テーマ未選択�
 全部入れる coverage checklist ではない。構成前に次の **editorial brief** を提示し、著者確認で止まる。
 
 ```markdown
-Reader: <一人の具体的読者と、その人の問い / 目的>
+Reader: <一人の具体的読者。その人の状況・既知のこと・当然視していること・問いがあればその問い。根拠と仮説を区別する>
 Channel: <local contract の channel>
 Central thesis: <この原稿が成立させる命題を一文で。必ず一つ>
+Entry bridge: <読者の出発点から、なぜ中心命題を考える意味があるかが伝わる場面・観察・問いを1〜2文で>
 Causal spine: <観察 / 問題 → 緊張 → 機序 → 読者の判断・行動・Higher Ground>
 Selected evidence:
 - <evidence id>: <因果線での役割>
@@ -81,14 +82,31 @@ Out of scope:
 - <面白いがこの命題を進めない論点>
 ```
 
+Reader は channel contract の読者との約束に沿って記事ごとに具体化する。読者の知識や動機の
+推測は仮説として著者と確認する。Entry bridge は既存の疑問への接続と、新しい疑問が生まれる
+入口の両方を含む。著者の体験も、その問いの意味を読者へ伝えるなら入口になる。読者が得る
+価値には理解や視点の変化も含み、結論への同意は読者に開いておく。
+
+local contract に著者方針がある場合は、テーマ・構成の判断に参照する。視点の変化を狙う原稿では、
+必要に応じて「読者のどんな見方や判断が変わりうるか」を既存の brief に添える。
+これは期待する価値の仮説として扱い、実際の読者への効果とは区別する。
+
 実用 how-to では central thesis を「読者が得る一つの成果または判断則」としてよい。証拠は
 量でなく役割で選ぶ。同じ役割の例が複数あるなら、因果に必要な最小の一例を残す。
 
 ### 3. Outline and draft
 
+導入で Entry bridge を具体化し、読者が共有していない前提を本文で補う。
 各 load-bearing section に causal spine 上の役割を一つだけ割り当て、採用 evidence を紐付ける。
 並列の agenda を節として足さない。具体物を先に置き、説明を後にする。執筆中に別の中心命題が
 現れたら混ぜずに停止し、editorial brief を再確認する。out-of-scope は `details` へ押し込まない。
+
+**時間は一直線に、錨は 1 本。** 物語の時間は最初の 1 回で絶対日付の錨を打ち、以後は相対
+（翌朝、3 日後、その週末）か無しで進める。節の順序は時系列に揃え、後の節で時間を遡らない。
+遡らないと因果が書けないなら、素材の並びでなく構成を直す。絶対日付を残すのは読者の判断を
+変えるものだけ（仕様や計測の as-of、外部発言の日付、比較対象になる過去の事故）。著者自身の
+ログの引用に日付・時刻を付けない。evidence dossier のタイムスタンプは検証の座標であって
+本文の語彙ではない — 照合は `fact-checker` が台帳で行うので、本文が日付を持つ必要はない。
 
 翻訳は `prose-translation` を使い、承認済み central thesis、causal spine、selected evidence、
 out-of-scope を保持する。翻訳先の local contract へ route し直す。
@@ -97,7 +115,9 @@ out-of-scope を保持する。翻訳先の local contract へ route し直す�
 
 本文の構造を凍結したら、local contract の channel reviewer、`prose-clarity-reviewer`、
 `fact-checker`、必要な cross-model review を本文へ実行する。editor と essay-reviewer の両方を
-回すのは contract が要求する場合だけ。
+回すのは contract が要求する場合だけ。`fact-checker` の dispatch prompt には証拠台帳と一次資料の
+path（repo、出力ファイル）を名指しで渡す — code / path / 出力の照合はこの agent が持ち、channel
+reviewer は判断だけを持つ。
 
 review 修正が central thesis、causal spine、主要節を変えたら brief → 関係 reviewer へ戻る。
 レビュー反映後、下の Final structural pass を確認してから著者が本文を通読し、**内容 GO** を
@@ -111,6 +131,12 @@ review 修正が central thesis、causal spine、主要節を変えたら brief 
   届く唯一の層）。著者が同種指摘を 2 回却下したら、その場で contract の該当行を更新または削除する
 - **再レビュー規律**: 2 round 目以降は CRITICAL と変更部分の regression のみを blocking とし、
   新規 MEDIUM/MINOR は集計のみ（Anthropic best-practices の re-review convergence、as-of 2026-08-27）
+- **panel の回数**: `prose-clarity-reviewer` と cross-model review は構造凍結時に各 1 回。以後の
+  部分改稿の regression は channel editor だけが見る。同じ観点で繰り返し読ませると、指摘ごとの
+  限定句と段落分割が積もって本文が防御的になる
+- **cross-model 指摘の採用**: カテゴリのすり替え・事実誤り・帰属の誤りだけを採用し、ヘッジや
+  限定句の追加を求める指摘は採用しない（裁定表は `codex-review` の Prose 裁定基準）。全採用は
+  一文ずつ正しくして通読を重くする
 - **blocking の根拠水準**: blocking 指摘は一次ソースの引用を要す。証拠台帳のみを根拠とする指摘は
   advisory（根拠 n=1・2026-08-27。以後 3 記事で台帳由来の偽陽性ゼロなら本行は削除候補）
 
@@ -169,7 +195,7 @@ fact-check で確定した一次資料を、**本文の出典セクションに�
 | **評価・反駁**（当否の判定・批判・拡張） | 「この議論は誤っている」 | 全文精読 |
 
 - **エッセイ / 記事**（人間向け）: 帰属レベルに収まる引用なら抄録ベースで可。当否判定をしないことを本文で明示するとなお良い
-- **学術 paper**: 本表を適用しない。`paper-ecosystem` の Source Fidelity Rules（一次ソース直接照合）が正本で、常に厳格側
+- **学術 paper**: 本表を適用しない。`paper-ecosystem`（`~/MyAI_Lab/paper-lab` 常駐）の Source Fidelity Rules（一次ソース直接照合）が正本で、常に厳格側
 - **検証の格を隠さない**: 抄録引用は全文精読と同じ見た目になる（citation laundering）。抄録には本文より強く言う「スピン」の実証報告もある。機械可読レイヤーがある記事では `confidence` の隣に `verification`（どこまで読んだか + as-of 日付）を書ける。本文で開示する先例: 「出典の格は中程度（三次文献）であり、一次学術文献での裏取りは未了」型の一文
 
 ### 翻訳記事の出典
@@ -265,7 +291,7 @@ channel contract が正本。記事全体の task で contract が無ければ�
 
 ### 感情語の扱い
 
-- **タイトル**: 禁止（「壊れている」「地獄」「最強」など）
+- **タイトル**: 禁止。実値は下の Title Conventions が持つ
 - **本文**: 著者の自然な体験描写なら OK（「正直つらかった」「ここで詰まった」）
 
 ### 結論の問い化
@@ -323,6 +349,8 @@ essay の既定構成（出典: Kaguura 2026。Craft 規約と同じ取り込み
 - **詩的・教科書的タイトル**: 意味が取れない詩的タイトル（素通りされる）と、「〜の分析」「〜に関する考察」型の教科書調（宿題に見える）
 - **挑発・断定**: 「〇〇の真価は△△ではない」式の論争誘発をしない
 - **過度な省略**: 概念を犠牲にして短くしない
+- **ダッシュ連結**: 「主節——補足」型の em dash（——）で 2 文をつながない。1 文で言えない
+  タイトルは軸が 2 つある印。補足は読点か本文へ
 
 *文字数上限はプラットフォーム依存。実値は各 project overlay の rules が正本で、ここには書かない。*
 
