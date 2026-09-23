@@ -40,7 +40,7 @@ tags・timing・language placement までで、本文はその外にある。
 | フェーズ | コンポーネント | 軸 | トリガー |
 |---------|---------------|-----|----------|
 | **Theme discovery** | `session-theme-mining` skill | Claude / Codex 履歴横断から 0〜3 件の同格な問いを発見し、著者の選択で止まる | 執筆スコープがまだ決まっていないとき |
-| **Theme review** | `theme-reviewer` agent | 選択済みの問いへ findings と深化の問いを返す。合否は出さない | editorial brief の前 |
+| **Theme review** | `theme-reviewer` agent | 選択済みの問いへ findings と深化の問いを返す。合否は出さない | 外部言説に対する新規性を主張する稿で、著者が指示したとき |
 | **Pre-write** | `collect-context` skill | 素材収集と証拠台帳（Claims Register / 一次・⚠未検証の tier）。編集判断はしない | 執筆前に素材を集めるとき |
 | **Write** | 本 skill「editorial brief と執筆フロー」 | 中心命題・因果線・証拠選択・構成・執筆 | 初稿・改稿 |
 | **Title generation** | `headline-craft` skill | 「開かせる一行」の候補生成 | 著者の内容 GO 後 |
@@ -62,8 +62,10 @@ tags・timing・language placement までで、本文はその外にある。
 ### 1. Route and discover
 
 local contract から出力 channel と読者を決める。テーマ未選択なら `session-theme-mining` が
-0〜3 件の同格候補を出し、著者の選択で止まる。選択済みの問いは `theme-reviewer` が findings
-と深化の問いだけを返す。テーマ候補を採点・順位付けしない。
+0〜3 件の同格候補を出し、著者の選択で止まる。選択済みの問いは editorial brief へ直接進む。
+`theme-reviewer` は、稿が外部言説に対する新規性を主張し、著者が指示したときに起動する
+（findings と深化の問いだけを返す）。経験の報告では命題が外部言説との差分に依存しないので、
+起動しても論点が増えるだけになる。テーマ候補を採点・順位付けしない。
 
 ### 2. Collect, then select
 
@@ -75,6 +77,7 @@ Reader: <一人の具体的読者。その人の状況・既知のこと・当�
 Channel: <local contract の channel>
 Central thesis: <この原稿が成立させる命題を一文で。必ず一つ>
 Entry bridge: <読者の出発点から、なぜ中心命題を考える意味があるかが伝わる場面・観察・問いを1〜2文で>
+Figure plan: <内容 GO の後に埋める。節 → 形（対比 / 流れ / 階層 / 2 軸 / 並列）→ 図の有無。並列は list のまま>
 Causal spine: <観察 / 問題 → 緊張 → 機序 → 読者の判断・行動・Higher Ground>
 Selected evidence:
 - <evidence id>: <因果線での役割>
@@ -96,7 +99,9 @@ local contract に著者方針がある場合は、テーマ・構成の判断�
 
 ### 3. Outline and draft
 
-導入で Entry bridge を具体化し、読者が共有していない前提を本文で補う。
+導入は Entry bridge の場面・観察・問いで開く。読者が既に知っている語だけで書き、本文で定義する語は
+定義する節で初めて出す。執筆理由や背景は、読者を場面に置いた後に、その場面が要る分だけ書く。
+読者が共有していない前提は本文で補う。
 各 load-bearing section に causal spine 上の役割を一つだけ割り当て、採用 evidence を紐付ける。
 並列の agenda を節として足さない。具体物を先に置き、説明を後にする。執筆中に別の中心命題が
 現れたら混ぜずに停止し、editorial brief を再確認する。out-of-scope は `details` へ押し込まない。
@@ -119,9 +124,14 @@ out-of-scope を保持する。翻訳先の local contract へ route し直す�
 path（repo、出力ファイル）を名指しで渡す — code / path / 出力の照合はこの agent が持ち、channel
 reviewer は判断だけを持つ。
 
-review 修正が central thesis、causal spine、主要節を変えたら brief → 関係 reviewer へ戻る。
-レビュー反映後、下の Final structural pass を確認してから著者が本文を通読し、**内容 GO** を
-出す。内容が確定するのはこの GO であり、タイトル作業はその後に置く。
+採用した指摘は orchestrator が反映し、反映後の稿は reviewer へ戻さず著者の通読へ渡す。
+下の Final structural pass を確認してから著者が本文を通読し、**内容 GO** を出す。
+修正が central thesis、causal spine、主要節を変えたときだけ、brief → 関係 reviewer へ戻る。内容が確定するのはこの GO であり、タイトル作業はその後に置く。
+
+図は内容 GO の後に起こす（brief の Figure plan をここで埋める。手順は下の「図」）。
+図の文字と本文の差分だけを `fact-checker` に回し、図を足した稿は著者がもう一度通読する。図と
+その直後の 1 文の追加は構造変更ではないので、この通読は確認であり、内容 GO と title-reviewer は
+やり直さない。
 
 #### 指摘の処分規律
 
@@ -129,11 +139,22 @@ review 修正が central thesis、causal spine、主要節を変えたら brief 
   CRITICAL でなく「裁定要求」として報告し、裁定者は著者
 - **裁定の書き戻し**: 裁定結果は memory でなく channel contract に書く（fresh-context reviewer に
   届く唯一の層）。著者が同種指摘を 2 回却下したら、その場で contract の該当行を更新または削除する
-- **再レビュー規律**: 2 round 目以降は CRITICAL と変更部分の regression のみを blocking とし、
-  新規 MEDIUM/MINOR は集計のみ（Anthropic best-practices の re-review convergence、as-of 2026-08-27）
-- **panel の回数**: `prose-clarity-reviewer` と cross-model review は構造凍結時に各 1 回。以後の
-  部分改稿の regression は channel editor だけが見る。同じ観点で繰り返し読ませると、指摘ごとの
-  限定句と段落分割が積もって本文が防御的になる
+- **panel の回数**: channel reviewer・`prose-clarity-reviewer`・cross-model review は構造凍結時に
+  各 1 回。レビュー修正を確かめるのは著者の通読で、reviewer ではない。修正を reviewer に読み
+  直させると、読むたびに新しい指摘が生まれて終わらず、限定句と段落分割が積もって本文が
+  防御的になる
+- **処分記録**: orchestrator は指摘ごとに採用・不採用と理由を 1 行ずつ残し、`quality-gate` へ
+  凍結稿への report と並べて渡す。受け入れの証跡は「凍結稿への report + 処分記録 + 著者の
+  内容 GO」で、反映後の稿への reviewer verdict は要らない
+- **brief へ戻った round**: reviewer を走らせ直すのは、修正が central thesis・causal spine・
+  主要節を変えて brief へ戻ったときだけ。その round は CRITICAL と変更部分の regression のみを
+  blocking とし、新規 MEDIUM/MINOR は集計のみ（Anthropic best-practices の re-review
+  convergence、as-of 2026-08-27）
+- **`fact-checker` の回数**: 著者の通読の前に 1 回。以後は、本文に新しい引用・数値・外部ソースが
+  入ったときだけ、その差分を対象に回す。全文の再照合は構造が動くたびに同じ主張を払い直すことになる
+- **reviewer への dispatch**: 初見の読みを担う reviewer（`prose-clarity-reviewer`）には、原稿の path と
+  channel contract だけを渡す。central thesis・causal spine・成功基準を prompt に入れると、reviewer は
+  答えを持って読むことになり、「何をしたのか分からない」を検出できなくなる
 - **cross-model 指摘の採用**: カテゴリのすり替え・事実誤り・帰属の誤りだけを採用し、ヘッジや
   限定句の追加を求める指摘は採用しない（裁定表は `codex-review` の Prose 裁定基準）。全採用は
   一文ずつ正しくして通読を重くする
@@ -244,12 +265,38 @@ shared word target は置かない。長さの上限は local contract、段落�
 - 節の入口に置くのは**具体物** — 実例・出力・逸話・数値・画面の描写・コードブロック
 - 説明はその**後**。順序が逆になると、読者は何の話か分からないまま抽象を読まされる
 - 提供された文脈で裏づけられない経歴・実績・数値は書かない
+- **仕組みの節は 1 件を追う。** 実際の入力 1 件が何を聞かれ何が返ったかを見せ、それが示す主張を 1 文で
+  言い、型・設定・コードの一般形はその後に置く
+- **前後比較（表・並置の装置）は、前の案が読者も選びうる案で、変更が 1 つのときに使う。** それ以外は現行の設計を正面から
+  説明し、実例は現行の資料から取る。見えていた失敗を「前」に置くと、読者には「なぜそれをやったのか」
+  だけが残る
+- **表 / 箇条書き / 散文。** 比較は表、並列は箇条書き、因果は散文
+- **証拠の全文は本文の外へ。** 実験ログ・設定全文・ADR はリンクか折りたたみに逃がし、本文は判断・数値・
+  trade-off だけを残す
+
+### 図
+
+図を起こすのは、local contract の Deterministic checks に Figure plan を持つ channel だけ。画像の形式は
+project の format skill が決める。
+
+- **図は凍結後に、節ごとに。** 内容 GO の後、節ごとに形を 1 語で言う（対比 / 流れ / 階層 / 2 軸 / 並列）。
+  並列以外は `/eli5 <その節の主張 1 文>` で 1 枚起こす（大きな絵・少ない言葉・読者の既知物との対比）。
+  形が言えない節は図を置かない。1 記事 3〜4 枚まで。置く位置は見出し直後でなく、その節の発見が
+  出そろった段落の後（先に図を出すと節の展開を先取りする）。例外は hero 図で、Entry bridge の段落の後、最初の見出しの前に置く。
+  図の直後に「この図が示すこと」を 1 文置く。生成と PNG 化の手順は project の `zenn-format`
+- **eli5 比喩は 1 記事 1 個。** eli5 比喩とは読者の既知物との対比（運転席と助手席、CPU と GPU）で、
+  タイトル・第一画面・hero 図のどれか 1 箇所に置く。hero 図以外の図は構造（対比 / 流れ / 階層 / 2 軸）
+  だけを描き、既知物の比喩を持たない。上の「見慣れた比喩は使わない」と両立する条件は、外すと中心命題の
+  形が消えること（消えないなら削る）
+
+review-when: pilot（`articles/jev-retrofit-limits.md`、2026-09-22）を含む図入りの 3 本の `article-stocktake` で
+直近稿と差が出ない、または Zenn の画像規約が変わる。差が出なければ Scaffold Dissolution で縮める。
 
 ### ジャンル別の構成
 
 | genre | 構成 |
 |---|---|
-| 実用記事 / チュートリアル | 読者が何を得るかで開く。主要節ごとにコードか端末出力を置く。締めは要約でなく具体的な takeaway |
+| 実用記事 / チュートリアル | Entry bridge の直後に、読者が何を得るかを言う。主要節ごとにコードか端末出力を置く。締めは要約でなく具体的な takeaway |
 | エッセイ / オピニオン | **[エッセイの 4 段構成](#エッセイの-4-段構成heros-journey-型) が正本**。1 節 1 論点、意見を支える実例を置く |
 | ニュースレター | 最初の 1 画面を強くする。近況の羅列にせず洞察を混ぜる。節ラベルで走査可能にする |
 
@@ -322,7 +369,7 @@ AI が実際のテキスト生成を担った記事（AI-mediated writing）で 
 
 essay の既定構成（出典: Kaguura 2026。Craft 規約と同じ取り込み）:
 
-1. **Calm Story** — 技術・理論から入らず、シンプルで関連性の高い人間的ストーリー・具体的シーンで開く。低認知負荷で読者を著者の声に慣れさせる。冒頭数段落で執筆理由や背景を説明する warm-up は削除し、行動の最中に読者を投入する
+1. **Calm Story** — 開き方は §3「Outline and draft」の導入（Entry bridge の場面で開く）。essay 固有の役割は、低認知負荷で読者を著者の声に慣れさせること
 2. **Plunge（緊張）** — 読者が乗ったところで、大きな問題・不都合な真実・パラドックスを提示する。緊張が途中離脱を難しくする
 3. **Solution** — フレームワーク・中核ルールを提示して読者を引き上げる
 4. **Higher Ground** — 開始時より高い位置で終える。読者が「学んだ」と感じて読み終える。未解決のまま残すこと自体が Higher Ground になりうる

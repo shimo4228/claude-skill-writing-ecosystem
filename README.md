@@ -51,7 +51,7 @@ the project's channel table, not by article type.
 | **Theme review** | `theme-reviewer` agent | findings on a chosen question; no verdict | before the editorial brief |
 | **Write** | `writing-ecosystem` skill (this one) | central thesis, causal spine, evidence selection, structure | first draft, full revision |
 | **Review: channel** | `editor` / `essay-reviewer` agent | structure, code accuracy, AI slop, terminology / logic, overload, tone | after structural freeze |
-| **Review: clarity** | `prose-clarity-reviewer` agent | first screen, paragraph density, terminology first use, coined-term budget | after structural freeze |
+| **Review: clarity** | `prose-clarity-reviewer` agent | first screen, terminology first use, coined-term budget, back-references, insider context | after structural freeze |
 | **Review: facts** | `fact-checker` agent | web verification of factual claims | before publication |
 | **Title review** | `title-reviewer` agent | title-body contract; findings only | after the author's content GO |
 | **Overlay** | `<project>/.claude/rules/*.md` | channel, reader, register, reviewer panel | inside the project only |
