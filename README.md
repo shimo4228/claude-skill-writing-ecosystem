@@ -20,7 +20,7 @@ cd claude-skill-writing-ecosystem
 ./install.sh
 ```
 
-Copies `skills/*` into `~/.claude/skills/` and `agents/*.md` into `~/.claude/agents/`. Existing files are backed up to `*.bak-<timestamp>` first (use `--force` to skip backups, `--dry-run` to preview).
+Copies `skills/*` into `~/.claude/skills/` and `agents/*.md` into `~/.claude/agents/`. Existing files that differ are moved to `~/.claude/backups/install-<timestamp>/` first (use `--force` to skip backups, `--dry-run` to preview).
 
 ### Option B — manual
 
