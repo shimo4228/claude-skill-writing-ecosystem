@@ -1,35 +1,41 @@
 # claude-skill-writing-ecosystem
 
-> A Claude Code skill (documentation-only, MIT) that orchestrates the **human-facing writing & review ecosystem** — articles, essays, blog posts, newsletter issues. Holds the canonical AI-slop banned list (Japanese + English), Voice rules (だ/である × 発見調), title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. **Bundles its three review agents** (editor / essay-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `llms-txt-writer` (AI-facing documents).
+> A Claude Code skill bundle (Markdown only, MIT) that orchestrates the writing of **human-facing** articles, essays, blog posts and newsletter issues: one orchestrator skill, `writing-ecosystem`, takes a piece from a single central thesis agreed with the writer, through an editorial brief, drafting and a review panel, to the writer's content GO, title review and acceptance. **Bundles its six review agents** (editor / essay-reviewer / prose-clarity-reviewer / theme-reviewer / title-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `llms-txt-writer` (AI-facing documents).
+
+Status: active; `skills/` and `agents/` are copied one way from the author's article repository [zenn-content](https://github.com/shimo4228/zenn-content) (`.claude/`), where they are used daily, so this copy can trail it between syncs.
 
 ## Core documentation
 
-- [SKILL.md](skills/writing-ecosystem/SKILL.md): full skill specification — ecosystem map, AI-slop banned lists (JA + EN), Voice & Tone rules, three-stage question architecture, title conventions, project-overlay extension slot
-- [README.md](README.md): human-facing narrative (install, ecosystem map, audience boundary)
-- [CHANGELOG.md](CHANGELOG.md): release notes (v0.1.0 initial release)
+- [SKILL.md](skills/writing-ecosystem/SKILL.md): full skill specification — ecosystem map, canonical workflow (route, collect, editorial brief, draft, freeze, review panel, content GO, title, acceptance), finding-disposal rule, citation workflow, genre shapes, title conventions, project-overlay slot
+- [references/](skills/writing-ecosystem/references/): style diagnostics (AI slop, JA + EN), review output format, publication procedures
+- [README.md](README.md): human-facing narrative (requirements, install, ecosystem map)
+- [CHANGELOG.md](CHANGELOG.md): release notes
 
 ## Bundled agents
 
-- [editor](agents/editor.md): tech-article review — structure, code accuracy, AI slop, terminology
-- [essay-reviewer](agents/essay-reviewer.md): idea-article review — logical structure, argument overload, tone
-- [fact-checker](agents/fact-checker.md): web-verification of factual claims, paste-ready sources block
+- [editor](agents/editor.md): practical-channel article review — argument flow, explanation quality, AI slop, in-article terminology
+- [essay-reviewer](agents/essay-reviewer.md): essay-channel review — logical structure, argument overload, tone
+- [prose-clarity-reviewer](agents/prose-clarity-reviewer.md): first-read clarity checklist; used by the Codex plugin's `codex:codex-rescue`, or run directly as the fallback
+- [theme-reviewer](agents/theme-reviewer.md): opt-in findings on a chosen question before writing; no verdict
+- [title-reviewer](agents/title-reviewer.md): title-body contract after the content GO; findings only
+- [fact-checker](agents/fact-checker.md): web verification of factual claims, local check of code / paths / output, paste-ready sources block
 
 ## Install
 
-- [install.sh](install.sh): one-command bundler — copies skills/* → ~/.claude/skills/, agents/*.md → ~/.claude/agents/; idempotent, backup-then-overwrite, `--force` / `--dry-run`
-- SkillsMP `/skills add` installs skills/ only — agents must be copied manually (`cp agents/*.md ~/.claude/agents/`)
-- The `article-writing` drafting skill (Everything Claude Code, MIT) is referenced but not bundled
+- [install.sh](install.sh): one-command bundler — `CLAUDE_HOME=<project>/.claude ./install.sh` copies skills/* → `<CLAUDE_HOME>/skills/`, agents/*.md → `<CLAUDE_HOME>/agents/`; idempotent, backs up replaced files to `<CLAUDE_HOME>/backups/install-<timestamp>/`, `--force` / `--dry-run`. Install per project: the agents read the skill from `<project>/.claude/skills/writing-ecosystem/`
+- Requires a publication channel contract under `<project>/.claude/rules/` and a writing-principles file; example: [zenn-content/.claude/rules/](https://github.com/shimo4228/zenn-content/tree/main/.claude/rules)
+- Named but not bundled (optional routes): `session-theme-mining`, `collect-context`, `headline-craft`, `quality-gate`, `prose-translation`
 
 ## The role-separation matrix
 
-The skill enforces a 2D role separation across the writing ecosystem:
+The skill enforces a role separation across the writing ecosystem:
 
-|        | Write | Review: Quality | Review: Logic | Review: Facts |
-|---|---|---|---|---|
-| **Component** | `article-writing` skill | `editor` agent | `essay-reviewer` agent | `fact-checker` agent |
-| **Trigger** | drafting | tech-article review | idea-article review | before publication |
+|        | Write | Review: channel | Review: first read | Review: facts | Title review | Acceptance |
+|---|---|---|---|---|---|---|
+| **Component** | `writing-ecosystem` skill | `editor` / `essay-reviewer` agent | Codex `codex:codex-rescue` with the `prose-clarity-reviewer` checklist | `fact-checker` agent | `title-reviewer` agent | `quality-gate` skill (not bundled) |
+| **Trigger** | first draft, full revision | after structural freeze | after structural freeze | before the writer's read-through | after the content GO | before the publication GO |
 
-The shared concerns (AI slop, Voice, title conventions) are owned by this skill (`writing-ecosystem`) and auto-loaded across write + review phases.
+Which channel routes to `editor` or `essay-reviewer` is decided by the project's publication channel contract, not by this skill.
 
 ## Audience boundary
 
@@ -43,6 +49,9 @@ The two skills do not overlap. Mixing audiences in one document makes both worse
 ## Sibling skills
 
 - [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer): AI-facing documents (the audience-paired skill)
+- [readme-writer](https://github.com/shimo4228/readme-writer): README counterpart, with a fresh judge checking the page against the code
+- [claude-skill-paper-ecosystem](https://github.com/shimo4228/claude-skill-paper-ecosystem): academic papers (SSRN / arXiv / Zenodo) with five reviewer subagents
 - [jsonld-knowledge-graph](https://github.com/shimo4228/jsonld-knowledge-graph): JSON-LD knowledge graph design for stable concept-level structure
 - [context-sync](https://github.com/shimo4228/context-sync): project documentation audit
 - [search-first](https://github.com/shimo4228/search-first): research-before-coding workflow
+- [shimo4228](https://github.com/shimo4228/shimo4228): the author's hub — five practice lines with their DOIs, and the author's tools for Claude Code

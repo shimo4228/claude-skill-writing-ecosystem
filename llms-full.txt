@@ -1,6 +1,6 @@
 # claude-skill-writing-ecosystem — AI Reference
 
-This document is the self-contained AI reference for `claude-skill-writing-ecosystem` (shimo4228, 2026, MIT), a Claude Code skill that orchestrates the human-facing writing and review ecosystem. The skill holds the canonical AI-slop banned list (Japanese + English), Voice rules, title conventions, and the role-boundary map across `article-writing`, `editor`, `essay-reviewer`, and `fact-checker`. As of v0.2.0 it **bundles its three review agents** (editor / essay-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `llms-txt-writer`, which owns AI-facing documents instead.
+This document is the self-contained AI reference for `claude-skill-writing-ecosystem` (shimo4228, 2026, MIT), a Claude Code skill bundle that orchestrates the writing of human-facing articles, essays, blog posts and newsletter issues. Its orchestrator skill, `writing-ecosystem`, takes one piece from a single central thesis agreed with the writer, through an editorial brief, drafting and a review panel, to the writer's content GO, title review and acceptance. The bundle **includes six review agents** (editor / essay-reviewer / prose-clarity-reviewer / theme-reviewer / title-reviewer / fact-checker) so the skill and agents install together via `install.sh`. Audience-paired with `llms-txt-writer`, which owns AI-facing documents instead.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
@@ -11,51 +11,52 @@ This document is the self-contained AI reference for `claude-skill-writing-ecosy
 - **License**: MIT
 - **GitHub**: https://github.com/shimo4228/claude-skill-writing-ecosystem
 - **Author**: shimo4228 (shimomoto-tatsuya)
-- **Bundled agents**: `editor`, `essay-reviewer`, `fact-checker` (in `agents/`; read canonical rules from the skill, so install together)
-- **Install**: `./install.sh` (copies skills/* → ~/.claude/skills/, agents/*.md → ~/.claude/agents/; idempotent, backup-then-overwrite). SkillsMP installs skills/ only — copy agents manually
-- **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
-- **Runtime**: None (documentation-only skill)
-- **Source files**: `SKILL.md` (232 lines)
-- **Skill install path**: `~/.claude/skills/writing-ecosystem/`
-- **Siblings**: `llms-txt-writer` (audience-paired), `jsonld-knowledge-graph`, `context-sync`, `search-first`
-- **Marketplace**: SkillsMP, `/skills add shimo4228/claude-skill-writing-ecosystem`
+- **Status**: active; synced one way from [zenn-content](https://github.com/shimo4228/zenn-content) `.claude/`, so it can trail that copy
+- **Bundled agents**: `editor`, `essay-reviewer`, `prose-clarity-reviewer`, `theme-reviewer`, `title-reviewer`, `fact-checker`
+- **Install**: `CLAUDE_HOME=<project>/.claude ./install.sh` (per project; backups to `<CLAUDE_HOME>/backups/install-<timestamp>/`)
+- **Requirements**: Claude Code; a publication channel contract under `<project>/.claude/rules/`; a writing-principles file. Optional: OpenAI Codex plugin for Claude Code (first read)
+- **Author research**: five practice lines with concept DOIs, listed at the hub https://github.com/shimo4228/shimo4228 — among them [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
+- **Runtime**: None (Markdown only; bash `install.sh`)
+- **Source files**: `skills/writing-ecosystem/SKILL.md`, `skills/writing-ecosystem/references/`, `agents/*.md`
+- **Skill install path**: `<project>/.claude/skills/writing-ecosystem/`
+- **Siblings**: `llms-txt-writer` (audience-paired), `readme-writer`, `claude-skill-paper-ecosystem`, `jsonld-knowledge-graph`, `context-sync`, `search-first`
 
 ## What is claude-skill-writing-ecosystem?
 
-claude-skill-writing-ecosystem is defined as a Claude Code skill that orchestrates the human-facing writing and review ecosystem. The skill holds canonical conventions — AI-slop banned lists, Voice rules, title rules, and section-length guidelines — and maps these onto a role separation matrix across four collaborator components: `article-writing` (general drafting), `editor` (tech-article review), `essay-reviewer` (idea-article review), and `fact-checker` (factual verification). The skill is auto-loaded across both Write and Review phases so the shared conventions apply uniformly.
+claude-skill-writing-ecosystem is defined as a Claude Code skill bundle that runs the writing of human-facing pieces while keeping the claim, the structure and the final decisions with the writer. The `writing-ecosystem` skill owns the procedure — central thesis, causal spine, evidence selection, structure, drafting — and maps roles onto collaborator components: `theme-reviewer` (opt-in theme findings), `editor` or `essay-reviewer` (channel review), the Codex plugin's `codex:codex-rescue` reading with the `prose-clarity-reviewer` checklist (first read), `fact-checker` (factual verification), `title-reviewer` (title-body contract) and `quality-gate` (acceptance, not bundled).
 
 ## What audience does this skill cover?
 
 This skill covers **human-primary content only** — articles, essays, blog posts, newsletter issues, and similar long-form material whose first readers are human. For AI-primary documents such as `llms.txt`, `llms-full.txt`, FAQ pages, and glossaries, the audience-paired sibling skill is `llms-txt-writer`. The two skills enforce strict audience separation because optimization criteria diverge: human-primary content rewards narrative flow and unique observation, AI-primary content rewards entity density and definitional explicitness.
 
-## What is the AI-slop banned list?
+## What are the AI-slop style diagnostics?
 
-The AI-slop banned list refers to a curated set of generic phrases — Japanese and English — that the skill prohibits from human-facing writing. Examples in Japanese: 「画期的」, 「革命的」, 「素晴らしい」, 「シームレス」, 「パワフルな」, 「本質的な問いを投げかける」. Examples in English: "powerful tool", "revolutionize", "cutting-edge", "game-changer", "seamless", "leverage", "robust", "at the end of the day". Each banned phrase is paired with a concrete replacement strategy (e.g. for 「画期的」: write specifically what changed). The judgment principle is single-sentence: if the phrase can be dropped into any other article and still read as meaningful, it is AI slop.
+The AI-slop style diagnostics refer to a diagnostic table in `references/style-diagnostics.md` that pairs generic language — Japanese and English — and structural tells with what to write instead. Examples: 「画期的」 / "game-changer" → the actual difference, observation or number; 「シームレス」 / "seamlessly" → the real operation and effort; "leverage" → a concrete verb or plain "use"; "It's not X, it's Y" repeated → state the claim directly. It is a diagnostic table, not a string blacklist: uses with a meaning specific to the piece stay. The skill reads it only when slop or voice drift is spotted.
 
 ## What is the Voice convention?
 
-The Voice convention is defined as **だ/である調 × 発見調** — declarative tense (だ/である) combined with discovery tone (発見調). Discovery-tone expressions ("〜だった", "〜と気づいた", "〜と感じた", "気づいたらそうなっていた") are preferred over declarative-tone expressions ("〜すべきだ", "〜に違いない", "〜を示している"). The convention applies to both tech and idea articles. Unresolved questions stay honest: "まだわからない" or "今後の課題" is preferred over forced conclusions.
+The Voice convention is defined as the register owned by the project's publication channel contract, not by this skill: register and sentence endings per channel live in the contract, and when no contract exists the skill does not guess. The author's own contract, for example, sets です/ます for Zenn and note and natural English for Dev.to and Substack. The skill holds only the procedure; the writer's principles live in a separate writing-principles file that the skill tells Claude to read before writing.
 
-## How does the skill weaken declarative conclusions?
+## How are review findings disposed of?
 
-The skill prescribes a strategic weakening of declarative statements into rhetorical questions, modeled on early Buddhist 阿含経 (Āgama) discourse. Instead of "X is correct," the skill suggests "X is correct, isn't it?" or "Where is the justification for X?" — phrasing that lets the reader arrive at the conclusion themselves. Strategic weakening targets specifically: titles (the entry point), the second-and-later occurrence of a thesis phrase, evaluative words in conclusions, and the final paragraph. Strong declarations are preserved for: specific factual observations with numbers or proper nouns, mid-argument intermediate observations, and concept pointers.
+The finding-disposal rule is defined as the skill's discipline for review output. Each panel reviewer — `editor` or `essay-reviewer`, and the Codex first read — reads the frozen draft once. The orchestrator logs adopt or reject, with a one-line reason, per finding, and the writer's read-through, not another review round, confirms the fixes, because re-reviewing fixed text keeps producing new findings and piles qualifiers into the prose. CRITICAL means only what breaks the reader promise, a fact, or the central thesis. Reviewers re-run only when a fix sends the piece back to the brief. `fact-checker` runs once before the read-through, then only on new citations, numbers or sources.
 
-## What is the three-stage question architecture?
+## What is the editorial brief?
 
-The three-stage question architecture refers to layering rhetorical questions across an article so the reader thinks in stages: (1) the title is in question form ("〜は必要か" / "なぜ〜か"), (2) the thesis is introduced as a question early in the article ("問いをひと言で言えば、〜のではないか、ということだ"), and (3) mid-article rhetorical questions follow concrete examples ("〜する理由はどこにあるのか"). When all three stages are present, the conclusion is reached jointly with the reader rather than imposed by the author.
+The editorial brief is defined as the document the `writing-ecosystem` skill writes to `docs/plans/<slug>.md` before any outline, after asking the writer what they are stuck on and restating it as a thesis. Its fields are Reader, Channel, Author's words (verbatim), Central thesis (exactly one, at the certainty of the writer's words), Entry bridge, Figure plan, Causal spine (observation → tension → mechanism → the writer's decision), Selected evidence and Out of scope. The skill stops for the writer's confirmation; reviewers receive the brief's path in their dispatch prompt.
 
 ## What are the title conventions?
 
-Titles must be **concrete** (the article's topic should be inferable from the title alone), **honest** (do not promise more than the article delivers), and **question-form acceptable** (knowledge-curiosity questions like "なぜ〜か" or "どう〜するか" are encouraged). Banned in titles: emotional clickbait words ("壊れている", "地獄", "最強"), number-as-the-star titles ("N 選", "N 倍"), provocative declarations ("X's true value is not Y" patterns), and excessive abbreviation that sacrifices conceptual clarity. Platform-specific character limits live in project overlay files, not in this skill.
+The title conventions refer to the skill's title rules. Titles must be **honest** (do not promise more than the body delivers; use only numbers the body measured) and keep **search terms** (the tool names and proper nouns the piece is about). The author's own title shape questions a premise, in the writer's words, and holds only if the body answers it or says honestly it could not. Apart from honesty, no candidate is dropped: `headline-craft` generates candidates after the content GO, `title-reviewer` returns findings, and the writer picks. Length and notation limits live in the channel contract, not in this skill.
 
 ## How is the skill extended for specific platforms?
 
-The skill exposes a **project overlay slot**: platform-specific rules live in `<project>/.claude/rules/<platform>-writing.md`. Examples: `zenn-content/.claude/rules/zenn-writing.md` for Zenn's 50–60 character title limit, `company-blog/.claude/rules/corp-writing.md` for corporate-blog restrictions. The overlay file should declare this skill as its base and contain only the additions; AI-slop and Voice rules are not re-stated in overlays. This keeps the base skill stable while allowing project-specific divergence.
+The project overlay slot is defined as the skill's extension point: platform-specific values (title limits, tag specs, register, reviewer panel, publish handoff) live in the project's publication channel contract under `<project>/.claude/rules/`, with one row per channel. The skill resolves the target path to one channel and stops rather than guess when it matches none or more than one. The contract does not restate the writing principles or the skill's procedure. Example: [zenn-content/.claude/rules/publishing-channels.md](https://github.com/shimo4228/zenn-content/blob/main/.claude/rules/publishing-channels.md).
 
-## How does this skill interact with article-writing?
+## How does this skill relate to article-writing?
 
-`article-writing` (a general-purpose drafting skill) is **authored by Affaan Mustafa as part of [Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code), MIT-licensed** — it is not authored by this repo. It has its own Banned Patterns list. This skill's AI-slop banned list is a **superset** that subsumes article-writing's Banned Patterns and adds Japanese-specific entries plus the discovery-tone Voice convention. The two coexist: ECC's `article-writing` provides the general framework and discipline, this skill provides the broader convention layer that applies on top.
+`article-writing` refers to a general-purpose drafting skill **authored by Affaan Mustafa as part of [Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code), MIT-licensed** — it is not authored by this repo. `writing-ecosystem` grew out of it but now carries its own drafting flow, so ECC is no longer required. The general drafting framework this skill started from is ECC's contribution.
 
 ## How does this relate to the author's research?
 
-This skill was extracted from the author's daily Japanese-language tech and essay writing practice across [Zenn](https://zenn.dev/shimo4228) and personal long-form essays, including writing about the three research lines (AKC, Contemplative Agent, AAP). The AI-slop banned list, declarative-with-discovery-tone Voice convention, and three-stage question architecture all originated as personal editing checklists; consolidating them into a single auto-loaded skill made them enforceable across writing sessions instead of relying on memory or one-off edits.
+This skill was extracted from the author's daily Japanese-language tech and essay writing practice across [Zenn](https://zenn.dev/shimo4228) and personal long-form essays, including writing about the author's research projects (AKC, Contemplative Agent, AAP and others; all listed at the hub https://github.com/shimo4228/shimo4228). Its procedures — the editorial brief, the one-pass review panel with logged dispositions, and the title conventions — grew out of the author's own runs; consolidating them into one orchestrator skill made them repeatable across writing sessions instead of relying on memory or one-off edits.
